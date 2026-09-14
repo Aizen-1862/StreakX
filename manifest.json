@@ -1,0 +1,9 @@
+{
+  "name": "StreakX",
+  "short_name": "StreakX",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#08080c",
+  "theme_color": "#0b0b10",
+  "icons": []
+}

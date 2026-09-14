@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b0b10">
+<title>StreakX</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#08080c;color:#f7f5ff;font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif}
+button,input{font:inherit}button{border:0;color:inherit}.app{max-width:520px;margin:auto;min-height:100vh;background:linear-gradient(180deg,#0d0d13,#08080c);padding:env(safe-area-inset-top) 18px 100px}
+header{display:flex;align-items:center;justify-content:space-between;padding:22px 2px 14px}.logo{font-size:23px;font-weight:900;letter-spacing:3px}.plus{width:44px;height:44px;border-radius:15px;background:#8b5cf6;font-size:27px;box-shadow:0 8px 25px #8b5cf633}
+.hero{padding:23px;border-radius:25px;background:radial-gradient(circle at 90% 0,#8b5cf644,transparent 42%),#17131f;border:1px solid #ffffff0d;box-shadow:0 18px 50px #0006}
+.heroTop{display:flex;justify-content:space-between;align-items:center}.hero h1{margin:2px 0 6px;font-size:27px}.muted{color:#aaa7b6}.ring{width:76px;height:76px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(#a78bfa var(--p),#292432 0);position:relative}.ring:after{content:"";position:absolute;inset:7px;background:#17131f;border-radius:50%}.ring b{position:relative;z-index:1;font-size:17px}.section{display:flex;justify-content:space-between;align-items:center;margin:26px 2px 12px}.section h2{font-size:13px;letter-spacing:1.5px;color:#9e9aa9;margin:0}.addSmall{color:#b99cff;background:none;font-size:13px}
+.activity{display:flex;align-items:center;gap:13px;padding:15px;background:#141419;border:1px solid #ffffff08;border-radius:19px;margin:10px 0;box-shadow:0 8px 22px #0003}.ico{width:50px;height:50px;border-radius:15px;display:grid;place-items:center;background:#211b2d;font-size:25px}.info{flex:1}.name{font-weight:750;font-size:16px}.streak{font-size:12px;color:#888593;margin-top:5px}.check{width:42px;height:42px;border-radius:14px;background:#24242c;color:#85818e;font-size:22px}.check.done{background:#8b5cf6;color:#fff;box-shadow:0 7px 20px #8b5cf655}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:12px}.stat{background:#141419;border:1px solid #ffffff08;border-radius:19px;padding:17px}.stat .v{font-size:23px;font-weight:850;margin-top:8px}.stat .l{font-size:12px;color:#8e8a98}
+.bottom{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(520px,100%);padding:12px 22px calc(12px + env(safe-area-inset-bottom));background:#0b0b10ee;backdrop-filter:blur(18px);display:flex;justify-content:space-around;border-top:1px solid #ffffff0b}.nav{background:none;color:#77737f;font-size:11px;text-align:center}.nav.active{color:#c2aaff}.nav span{display:block;font-size:21px;margin-bottom:3px}
+.sheet{position:fixed;inset:0;background:#0009;display:none;align-items:flex-end;z-index:10}.modal{width:min(520px,100%);margin:auto;background:#15151b;border-radius:28px 28px 0 0;padding:24px 20px calc(24px + env(safe-area-inset-bottom));box-shadow:0 -20px 60px #0009}.modal h2{margin:0 0 18px}.field{width:100%;padding:15px;border-radius:14px;border:1px solid #ffffff10;background:#0d0d12;color:#fff;outline:none}.emojis{display:flex;gap:7px;flex-wrap:wrap;margin:13px 0}.emoji{width:42px;height:42px;border-radius:12px;background:#24242b;font-size:20px}.emoji.sel{outline:2px solid #9b7af7}.actions{display:flex;gap:10px;margin-top:15px}.actions button{flex:1;padding:14px;border-radius:14px;background:#282731}.actions .primary{background:#8b5cf6}.toast{position:fixed;left:50%;bottom:85px;transform:translateX(-50%) translateY(20px);background:#24222b;padding:11px 16px;border-radius:13px;opacity:0;transition:.25s;pointer-events:none}.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:10px}.day{aspect-ratio:1;border-radius:7px;background:#24242b;display:grid;place-items:center;font-size:10px;color:#777}.day.done{background:#8b5cf6;color:white}.day.today{outline:2px solid #b9a1ff;outline-offset:1px}
+.empty{text-align:center;padding:55px 20px;color:#aaa7b6}.empty div{font-size:55px}.empty button{background:#8b5cf6;padding:13px 18px;border-radius:14px;margin-top:15px}
+</style>
+</head>
+<body>
+<div class="app">
+<header><div class="logo">STREAKX</div><button class="plus" onclick="openAdd()">+</button></header>
+<main id="home"></main>
+</div>
+<div class="sheet" id="sheet" onclick="closeIfOutside(event)">
+<div class="modal">
+<h2>Create activity</h2><input id="name" class="field" placeholder="e.g. Study" maxlength="30">
+<div class="emojis" id="emojis"></div>
+<div class="actions"><button onclick="closeAdd()">Cancel</button><button class="primary" onclick="create()">Create</button></div>
+</div></div>
+<div class="toast" id="toast"></div>
+<nav class="bottom"><button class="nav active"><span>⌂</span>Home</button><button class="nav" onclick="showAll()"><span>▦</span>History</button><button class="nav" onclick="openAdd()"><span>＋</span>Add</button></nav>
+<script>
+const icons=['🔥','📚','💻','🏃','💧','🎯','🧘','🎨','🎵','📖','✍️','🎸'];
+let data=JSON.parse(localStorage.getItem('streakx')||'[]'), selected='🔥';
+const key=d=>{d=new Date(d);return d.toISOString().slice(0,10)}
+const today=()=>key(new Date());
+function current(a){let d=new Date(),n=0;while(a.done.includes(key(d))){n++;d.setDate(d.getDate()-1)}return n}
+function best(a){if(!a.done.length)return 0;let ds=[...new Set(a.done)].sort(),b=1,r=1;for(let i=1;i<ds.length;i++){let x=new Date(ds[i-1]),y=new Date(ds[i]);if((y-x)/86400000===1){r++;b=Math.max(b,r)}else r=1}return b}
+function save(){localStorage.setItem('streakx',JSON.stringify(data))}
+function render(){
+ let done=data.filter(a=>a.done.includes(today())).length, total=data.reduce((s,a)=>s+a.done.length,0), p=data.length?Math.round(done/data.length*100):0;
+ document.getElementById('home').innerHTML=`
+ <section class="hero"><div class="heroTop"><div><div class="muted">TODAY</div><h1>Keep the fire alive.</h1><div class="muted">${done} of ${data.length} activities complete</div></div><div class="ring" style="--p:${p}%"><b>${p}%</b></div></div></section>
+ <div class="section"><h2>YOUR ACTIVITIES</h2><button class="addSmall" onclick="openAdd()">+ Add</button></div>
+ ${data.length?data.map((a,i)=>card(a,i)).join(''):`<div class="empty"><div>🔥</div><h2>No streaks yet</h2><p>Create your first activity and start building consistency.</p><button onclick="openAdd()">Create activity</button></div>`}
+ <div class="section"><h2>YOUR PROGRESS</h2></div><div class="stats"><div class="stat"><div class="l">TOTAL DAYS</div><div class="v">${total}</div></div><div class="stat"><div class="l">BEST STREAK</div><div class="v">🔥 ${Math.max(0,...data.map(best))}</div></div></div>`;
+}
+function card(a,i){let d=a.done.includes(today());return `<div class="activity" onclick="details(${i})"><div class="ico">${a.icon}</div><div class="info"><div class="name">${esc(a.name)}</div><div class="streak">🔥 ${current(a)} day streak · 🏆 ${best(a)} best</div></div><button class="check ${d?'done':''}" onclick="event.stopPropagation();toggle(${i})">${d?'✓':'○'}</button></div>`}
+function toggle(i){let a=data[i],t=today(),q=a.done.indexOf(t);if(q>=0)a.done.splice(q,1);else a.done.push(t);save();render();toast(q<0?'Streak continued! 🔥':'Marked incomplete');}
+function openAdd(){document.getElementById('sheet').style.display='flex';document.getElementById('name').value='';renderIcons();setTimeout(()=>document.getElementById('name').focus(),100)}
+function closeAdd(){document.getElementById('sheet').style.display='none'}
+function closeIfOutside(e){if(e.target.id==='sheet')closeAdd()}
+function renderIcons(){document.getElementById('emojis').innerHTML=icons.map(x=>`<button class="emoji ${x===selected?'sel':''}" onclick="selected='${x}';renderIcons()">${x}</button>`).join('')}
+function create(){let n=document.getElementById('name').value.trim();if(!n){toast('Give your activity a name');return}data.push({id:Date.now(),name:n,icon:selected,done:[]});save();closeAdd();render();toast('Activity created 🔥')}
+function details(i){let a=data[i],start=new Date();start.setMonth(start.getMonth()-5);let cells='';let d=new Date(start.getFullYear(),start.getMonth(),1);let end=new Date(new Date().getFullYear(),new Date().getMonth()+1,0);while(d<=end){cells+=`<div class="day ${a.done.includes(key(d))?'done':''} ${key(d)===today()?'today':''}">${d.getDate()}</div>`;d.setDate(d.getDate()+1)}
+document.getElementById('home').innerHTML=`<div class="section"><button class="addSmall" onclick="render()">← Back</button><h2>${esc(a.name).toUpperCase()}</h2></div><div class="stats"><div class="stat"><div class="l">CURRENT STREAK</div><div class="v">🔥 ${current(a)}</div></div><div class="stat"><div class="l">BEST STREAK</div><div class="v">🏆 ${best(a)}</div></div></div><div class="section"><h2>LAST 6 MONTHS</h2></div><div class="calendar">${cells}</div><div class="section"><button class="addSmall" onclick="removeActivity(${i})">Delete activity</button></div>`;
+}
+function removeActivity(i){if(confirm('Delete this activity and its history?')){data.splice(i,1);save();render();toast('Activity deleted')}}
+function showAll(){render();toast('History is available inside each activity')}
+function toast(t){let e=document.getElementById('toast');e.textContent=t;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),1800)}
+function esc(s){return s.replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+render();
+</script>
+</body></html>
